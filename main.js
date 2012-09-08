@@ -30,52 +30,54 @@ define(function (require, exports, module) {
     'use strict';
 
     var CommandManager = brackets.getModule("command/CommandManager"),
-        Menus          = brackets.getModule("command/Menus"),
-        EditorManager  = brackets.getModule("editor/EditorManager"),
- 		ExtensionUtils = brackets.getModule("utils/ExtensionUtils");
+        Menus = brackets.getModule("command/Menus"),
+        EditorManager = brackets.getModule("editor/EditorManager"),
+        ExtensionUtils = brackets.getModule("utils/ExtensionUtils");
 
     ExtensionUtils.loadStyleSheet(module, "styles.css");
 
-	function MatchTrailingSpaceHighlightState() {
-		this.marked = [];
-	}
+    function MatchTrailingSpaceHighlightState() {
+        this.marked = [];
+    }
 
-	function getMatchHighlightState(cm) {
-		return cm._matchTrailingSpaceHighlightState || (cm._matchTrailingSpaceHighlightState = new MatchTrailingSpaceHighlightState());
-	}
+    function getMatchHighlightState(cm) {
+        return cm._matchTrailingSpaceHighlightState || (cm._matchTrailingSpaceHighlightState = new MatchTrailingSpaceHighlightState());
+    }
 
-	function clearMarks(cm) {
-		var state = getMatchHighlightState(cm);
-		for (var i = 0; i < state.marked.length; ++i) {
-			state.marked[i].clear();
-		}
-		state.marked = [];
-	}
+    function clearMarks(cm) {
+        var state = getMatchHighlightState(cm);
+        var i;
+        for (i = 0; i < state.marked.length; ++i) {
+            state.marked[i].clear();
+        }
+        state.marked = [];
+    }
 
-	function doHighlightTrailingSpaces(cm) {
-		clearMarks(cm);
-		var state = getMatchHighlightState(cm);
-		var queryRegExp = / +$/;
-			cm.operation(function() {
-				//This is too expensive on big documents.
-			if (cm.lineCount() < 2000) {
-				for (var cursor = cm.getSearchCursor(queryRegExp); cursor.findNext();) {
-					state.marked.push(cm.markText(cursor.from(), cursor.to(), 'CodeMirror-trailingspace'));
-				}
-			}
-		});
-	}
+    function doHighlightTrailingSpaces(cm) {
+        clearMarks(cm);
+        var state = getMatchHighlightState(cm);
+        var queryRegExp = / +$/;
+        cm.operation(function () {
+            //This is too expensive on big documents.
+            if (cm.lineCount() < 2000) {
+                var cursor;
+                for (cursor = cm.getSearchCursor(queryRegExp); cursor.findNext();) {
+                    state.marked.push(cm.markText(cursor.from(), cursor.to(), 'CodeMirror-trailingspace'));
+                }
+            }
+        });
+    }
 
-	function highlightTrailingSpaces() {
-		var editor = EditorManager.getCurrentFullEditor();
-		if (editor) {
-			doHighlightTrailingSpaces(editor._codeMirror);
-		}
-	}
+    function highlightTrailingSpaces() {
+        var editor = EditorManager.getCurrentFullEditor();
+        if (editor) {
+            doHighlightTrailingSpaces(editor._codeMirror);
+        }
+    }
 
-	function handleTrailingSpaces() {
-		highlightTrailingSpaces();
-	}
+    function handleTrailingSpaces() {
+        highlightTrailingSpaces();
+    }
 
     var MY_COMMAND_ID = "trailingspaces.show";   // package-style naming to avoid collisions
     CommandManager.register("Show Trailing Spaces", MY_COMMAND_ID, handleTrailingSpaces);
@@ -83,6 +85,6 @@ define(function (require, exports, module) {
     var menu = Menus.getMenu(Menus.AppMenuBar.VIEW_MENU);
     menu.addMenuDivider();
     menu.addMenuItem(MY_COMMAND_ID);
-    
+
     // TODO: Press escape to clear marks
 });
