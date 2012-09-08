@@ -43,7 +43,7 @@ define(function (require, exports, module) {
 	function getMatchHighlightState(cm) {
 		return cm._matchTrailingSpaceHighlightState || (cm._matchTrailingSpaceHighlightState = new MatchTrailingSpaceHighlightState());
 	}
-  
+
 	function clearMarks(cm) {
 		var state = getMatchHighlightState(cm);
 		for (var i = 0; i < state.marked.length; ++i) {
@@ -56,26 +56,26 @@ define(function (require, exports, module) {
 		clearMarks(cm);
 		var state = getMatchHighlightState(cm);
 		var queryRegExp = / +$/;
-	  	cm.operation(function() {
-	  		//This is too expensive on big documents.
+			cm.operation(function() {
+				//This is too expensive on big documents.
 			if (cm.lineCount() < 2000) {
 				for (var cursor = cm.getSearchCursor(queryRegExp); cursor.findNext();) {
 					state.marked.push(cm.markText(cursor.from(), cursor.to(), 'CodeMirror-trailingspace'));
 				}
 			}
 		});
-  	}
+	}
 
-    function highlightTrailingSpaces() {
+	function highlightTrailingSpaces() {
 		var editor = EditorManager.getCurrentFullEditor();
 		if (editor) {
 			doHighlightTrailingSpaces(editor._codeMirror);
 		}
-    }
+	}
 
-    function handleTrailingSpaces() {
-    	highlightTrailingSpaces();
-    }
+	function handleTrailingSpaces() {
+		highlightTrailingSpaces();
+	}
 
     var MY_COMMAND_ID = "trailingspaces.show";   // package-style naming to avoid collisions
     CommandManager.register("Show Trailing Spaces", MY_COMMAND_ID, handleTrailingSpaces);
